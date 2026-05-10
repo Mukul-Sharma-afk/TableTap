@@ -1,0 +1,143 @@
+{% extends "landing_base.html" %}
+{% load static %}
+
+{% block title %}TableTap Landing{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+        url("{% static 'core/images/patrick-tomasso-GXXYkSwndP4-unsplash.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 8rem 0;
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        color: #0d6efd;
+        margin-bottom: 1rem;
+    }
+
+    .footer {
+        background-color: #00000067;
+        color: white;
+        padding: 3rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block nav_links %}
+<ul class="navbar-nav ms-auto">
+    <li class="nav-item">
+        <a class="nav-link active" href="{% url 'landing' %}" aria-current="page">Home</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#features">Features</a>
+    </li>
+</ul>
+<div class="d-flex">
+    {% if user.is_authenticated %}
+        {% if user.role == "admin" %}
+        <a href="/tabletap/admin/" class="btn btn-warning me-2">
+            <i class="bi bi-speedometer2"></i> Admin Dashboard
+        </a>
+        <a href="{% url 'logout' %}" class="btn btn-outline-light">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+        {% endif %}
+    {% else %}
+        <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Login</a>
+        <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center" aria-labelledby="hero-heading">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-4" id="hero-heading">Transform Your Business's Ordering Process</h1>
+        <p class="lead mb-5">TableTap lets your customers scan a QR code, browse your menu, and order directly from their smartphones.</p>
+        {% if not user.is_authenticated or user.role != "admin" %}
+        <a href="{% url 'signup' %}" class="btn btn-primary btn-lg px-5 py-3">Get Started For Free</a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="bg-light py-5" id="features" aria-labelledby="features-heading">
+    <div class="container">
+        <h2 class="text-center mb-4" id="features-heading">Key Features</h2>
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="feature-icon" aria-hidden="true">
+                    <i class="bi bi-qr-code"></i>
+                </div>
+                <h3>QR Code Ordering</h3>
+                <p>Generate unique QR codes for each table. Customers can scan and order without needing to create an account.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="feature-icon" aria-hidden="true">
+                    <i class="bi bi-menu-button-wide"></i>
+                </div>
+                <h3>Digital Menu Management</h3>
+                <p>Easily create and update your digital menu with categories, items, images, and pricing.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="feature-icon" aria-hidden="true">
+                    <i class="bi bi-card-checklist"></i>
+                </div>
+                <h3>Order Management</h3>
+                <p>Receive and track orders in real-time. Mark orders as completed once served.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="bg-light py-5" aria-labelledby="how-it-works-heading">
+    <div class="container">
+        <h2 class="text-center mb-5" id="how-it-works-heading">How It Works</h2>
+        <div class="row g-4 align-items-center">
+            <div class="col-md-6">
+                <img src="{% static 'core/images/patrick-tomasso-GXXYkSwndP4-unsplash.jpg' %}" class="img-fluid rounded shadow" alt="Restaurant interior with ambient lighting">
+            </div>
+            <div class="col-md-6">
+                {% for step in "1234" %}
+                <div class="d-flex mb-4">
+                    <div class="bg-primary text-white rounded-circle p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;" aria-hidden="true">{{ step }}</div>
+                    <div>
+                        {% if step == "1" %}
+                        <h3>Sign Up & Register Your Business</h3>
+                        <p>Create your restaurant, cafe, or coffee shop's profile and add your menu items with descriptions and prices.</p>
+                        {% elif step == "2" %}
+                        <h3>Generate Table QR Codes</h3>
+                        <p>Create unique QR codes for each table at your establishment and print them out.</p>
+                        {% elif step == "3" %}
+                        <h3>Customers Scan & Order</h3>
+                        <p>Customers can scan the QR code, browse your menu, and place orders directly from their phones.</p>
+                        {% elif step == "4" %}
+                        <h3>Manage Your Orders</h3>
+                        <p>Receive orders in real-time and mark them as completed when served.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="py-5 bg-light text-black text-center" aria-labelledby="call-to-action-heading">
+    <div class="container">
+        <h2 class="mb-4" id="call-to-action-heading">Ready to Transform Your Ordering Experience?</h2>
+        <p class="lead mb-4">Join the others who are already using TableTap to streamline their operations.</p>
+        {% if not user.is_authenticated or user.role != "admin" %}
+        <a href="{% url 'signup' %}" class="btn btn-primary btn-lg px-5 py-3">Sign Up Now</a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

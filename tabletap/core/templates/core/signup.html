@@ -1,0 +1,344 @@
+{% extends "landing_base.html" %}
+{% load static %}
+{% load socialaccount %}
+
+{% block title %}TableTap Signup{% endblock %}
+
+{% block extra_styles %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+  }
+
+  section {
+    flex: 1 0 auto;
+  }
+
+  footer {
+    flex-shrink: 0;
+  }
+
+  .signup-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .footer {
+    background-color: #00000067;
+    color: white;
+    padding: 3rem 0;
+  }
+
+  .social-signup-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+  }
+
+  .social-signup-btn i {
+    margin-right: 10px;
+  }
+
+  .step-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+  }
+
+  .step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    padding-bottom: 20px;
+  }
+
+  .step:not(:last-child):after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    right: -50%;
+    width: 100%;
+    height: 2px;
+    background-color: #dee2e6;
+    z-index: 1;
+  }
+
+  .step.active:not(:last-child):after {
+    background-color: #0d6efd;
+  }
+
+  .step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .step.active .step-number {
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  .form-card {
+    display: none;
+  }
+
+  .form-card.active {
+    display: block;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+  }
+</style>
+{% endblock %}
+
+{% block nav_links %}
+<ul class="navbar-nav ms-auto">
+  <li class="nav-item"><a class="nav-link active" href="{% url 'landing' %}">Home</a></li>
+  <li class="nav-item"><a href="{% url 'login' %}" class="btn btn-outline-light me-2">Login</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="signup-container">
+      <div class="card shadow">
+        <div class="card-body p-5">
+          <div class="text-center mb-4">
+            <h1>Create Your TableTap Account</h1>
+            <p class="text-muted">Get started with digital menus and QR code ordering</p>
+          </div>
+
+          <div class="step-indicator" aria-label="Form Progress">
+            <div class="step active" id="step1-indicator">
+              <div class="step-number">1</div>
+              <div class="step-label">Account</div>
+            </div>
+            <div class="step" id="step2-indicator">
+              <div class="step-number">2</div>
+              <div class="step-label">Personal</div>
+            </div>
+            <div class="step" id="step3-indicator">
+              <div class="step-number">3</div>
+              <div class="step-label">Business</div>
+            </div>
+          </div>
+
+          <form method="POST" data-multi-step>
+            {% if messages %}
+            <div class="alert alert-danger">
+              {% for message in messages %}
+              <p>{{ message }}</p>
+              {% endfor %}
+            </div>
+            {% endif %}
+            {% csrf_token %}
+
+            <div class="form-card active" data-step>
+              <div class="text-center mb-3"><span>Sign up with</span></div>
+              <a href="{% provider_login_url 'google' %}" class="btn btn-outline-dark social-signup-btn">
+                <i class="bi bi-google"></i> Sign up with Google
+              </a>
+              <div class="text-center my-3"><span class="text-muted">Or sign up with email</span></div>
+              <div class="mb-3">
+                {{ user_form.username.label_tag }}
+                {{ user_form.username }}
+                {% if user_form.username.errors %}
+                <div class="text-danger small">
+                  {% for error in user_form.username.errors %}
+                  <p>{{ error }}</p>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="mb-3">{{ user_form.email.label_tag }} {{ user_form.email }}</div>
+              <div class="mb-3">{{ user_form.password1.label_tag }} {{ user_form.password1 }}</div>
+              <div class="mb-3">{{ user_form.password2.label_tag }} {{ user_form.password2 }}</div>
+              <button type="button" class="btn btn-primary mt-3 w-100" data-next>Next</button>
+            </div>
+
+            <div class="form-card" data-step>
+              <div class="mb-3">{{ user_form.first_name.label_tag }} {{ user_form.first_name }}</div>
+              <div class="mb-3">{{ user_form.last_name.label_tag }} {{ user_form.last_name }}</div>
+              <div class="mb-3">{{ user_form.role.label_tag }} {{ user_form.role }}</div>
+              <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary" data-previous>Previous</button>
+                <button type="button" class="btn btn-primary" data-next>Next</button>
+              </div>
+            </div>
+
+            <div class="form-card" data-step>
+              <div id="owner-only-fields">
+                <div class="mb-3">{{ business_form.name.label_tag }} {{ business_form.name }}</div>
+                <div class="mb-3">{{ business_form.business_type.label_tag }} {{ business_form.business_type }}</div>
+                <div class="mb-3">{{ business_form.address.label_tag }} {{ business_form.address }}</div>
+                <div class="mb-3">{{ business_form.phone_no.label_tag }} {{ business_form.phone_no }}</div>
+                <div class="mb-3">{{ business_form.description.label_tag }} {{ business_form.description }}</div>
+              </div>
+              <div id="staff-only-fields" style="display:none;">
+                <div class="mb-3">
+                  <label for="business-select">Select Business</label>
+                  <select id="business-select" name="business_id" class="form-select">
+                    {% for business in business_list %}
+                    <option value="{{ business.id }}">{{ business.name }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary" data-previous>Previous</button>
+                <button type="submit" class="btn btn-success">Submit</button>
+              </div>
+            </div>
+          </form>
+
+          <div class="text-center mt-4">
+            <p class="mb-0">Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+
+  // Retrieves the form and steps inside it, sets current step as the active one or sets 0 as default
+  const multiStepForm = document.querySelector("[data-multi-step]");
+  const formSteps = [...multiStepForm.querySelectorAll("[data-step]")];
+  let currentStep = formSteps.findIndex(step => step.classList.contains("active"));
+  if (currentStep < 0) currentStep = 0;
+  showCurrentStep();
+
+  multiStepForm.addEventListener("click", async e => {
+    // If step is 0 then call validateStep1() to ensure data is correctly filled
+    if (e.target.matches("[data-next]")) {
+      if (currentStep === 0) {
+        const errors = await validateStep1();
+        if (errors.length > 0) {
+          showErrors(errors);
+          return;
+        }
+      }
+
+      // If on step 1 then call toggleRoleFields() to update role-based field visibility
+      if (currentStep === 1) toggleRoleFields();
+      currentStep++;
+      showCurrentStep();
+
+    } else if (e.target.matches("[data-previous]")) {
+      currentStep--;
+      showCurrentStep();
+    }
+  });
+
+  // Displays the content of the current form step and updates step indicator
+  function showCurrentStep() {
+    formSteps.forEach((step, index) => {
+      step.classList.toggle("active", index === currentStep);
+      const indicator = document.getElementById(`step${index + 1}-indicator`);
+      if (indicator) indicator.classList.toggle("active", index === currentStep);
+    });
+    clearErrors();
+  }
+
+  // Shows role-based fields. Owner can see business details form whereas other roles can only see dropdown for existing business.
+  function toggleRoleFields() {
+    const role = document.getElementById("id_role")?.value;
+    document.getElementById("owner-only-fields").style.display = role === "owner" ? "block" : "none";
+    document.getElementById("staff-only-fields").style.display = (role === "staff" || role === "manager") ? "block" : "none";
+  }
+
+  // When page loads, initialize the role-based form
+  document.addEventListener("DOMContentLoaded", () => {
+    toggleRoleFields();
+    document.getElementById("id_role")?.addEventListener("change", toggleRoleFields);
+    $('#business-select').select2({ placeholder: "Search for a business", allowClear: true });
+  });
+
+  // Validates the first step. Ensures required fields are entered, passwords match, and username and email are unique (added after social login).
+  async function validateStep1() {
+    const username = document.getElementById("id_username")?.value.trim();
+    const email = document.getElementById("id_email")?.value.trim();
+    const password1 = document.getElementById("id_password1")?.value;
+    const password2 = document.getElementById("id_password2")?.value;
+
+    const errors = [];
+
+    if (!username || !email || !password1 || !password2) {
+      errors.push("All fields are required.");
+    }
+
+    if (password1 !== password2) {
+      errors.push("Passwords do not match.");
+    }
+
+    if (password1.length < 8) {
+      errors.push("Password must be at least 8 characters.");
+    }
+
+    const response = await fetch("{% url 'validate_signup_step1' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      body: JSON.stringify({ username, email })
+    });
+
+    const result = await response.json();
+    if (!result.valid) {
+      errors.push(...result.errors);
+    }
+
+    return errors;
+  }
+
+  // Shows errors
+  function showErrors(errors) {
+    let box = document.getElementById("step1-errors");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "step1-errors";
+      box.className = "alert alert-danger mt-2";
+      formSteps[0].prepend(box);
+    }
+    box.innerHTML = errors.map(e => `<p class='mb-0'>${e}</p>`).join("");
+  }
+
+  function clearErrors() {
+    const box = document.getElementById("step1-errors");
+    if (box) box.remove();
+  }
+</script>
+{% endblock %}

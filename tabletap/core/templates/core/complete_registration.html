@@ -1,0 +1,238 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Complete Registration</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: #f8f9fa;
+    }
+
+    section {
+      flex: 1 0 auto;
+    }
+
+    .signup-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .form-card {
+      display: none;
+    }
+
+    .form-card.active {
+      display: block;
+    }
+
+    .step-indicator {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      padding-bottom: 20px;
+    }
+
+    .step:not(:last-child):after {
+      content: '';
+      position: absolute;
+      top: 15px;
+      right: -50%;
+      width: 100%;
+      height: 2px;
+      background-color: #dee2e6;
+      z-index: 1;
+    }
+
+    .step.active:not(:last-child):after {
+      background-color: #0d6efd;
+    }
+
+    .step-number {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #dee2e6;
+      color: #6c757d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .step.active .step-number {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    textarea,
+    input,
+    select {
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Main Content -->
+  <section class="py-5" role="main" aria-labelledby="complete-registration-heading">
+    <div class="container">
+      <div class="signup-container">
+        <div class="card shadow">
+          <div class="card-body p-5">
+            <div class="text-center mb-4">
+              <h1 id="complete-registration-heading">Complete Your Registration</h1>
+              <p class="text-muted">We need a few more details to get you started.</p>
+            </div>
+
+            <!-- Step Indicators -->
+            <div class="step-indicator" aria-hidden="true">
+              <div class="step active" id="step1-indicator">
+                <div class="step-number">1</div>
+                <div class="step-label">Personal</div>
+              </div>
+              <div class="step" id="step2-indicator">
+                <div class="step-number">2</div>
+                <div class="step-label">Business</div>
+              </div>
+            </div>
+
+            <!-- Messages for Form -->
+            {% if messages %}
+            <div class="alert alert-danger">
+              {% for message in messages %}
+              <p>{{ message }}</p>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" data-multi-step aria-label="Complete Registration Form">
+              {% csrf_token %}
+              <div class="form-card active" data-step>
+                <div class="mb-3">{{ form.first_name.label_tag }} {{ form.first_name }}</div>
+                <div class="mb-3">{{ form.last_name.label_tag }} {{ form.last_name }}</div>
+                <div class="mb-3">{{ form.role.label_tag }} {{ form.role }}</div>
+                <div class="d-flex justify-content-end mt-4">
+                  <button type="button" class="btn btn-primary" data-next aria-label="Go To Next Step">Next</button>
+                </div>
+              </div>
+
+              <!-- Step 2 Content -->
+              <div class="form-card" data-step>
+                <!-- <div id="owner-only-fields">
+                  <div class="mb-3">{{ form.business_name.label_tag }} {{ form.business_name }}</div>
+                  <div class="mb-3">{{ form.business_type.label_tag }} {{ form.business_type }}</div>
+                  <div class="mb-3">{{ form.address.label_tag }} {{ form.address }}</div>
+                  <div class="mb-3">{{ form.phone_no.label_tag }} {{ form.phone_no }}</div>
+                </div> -->
+
+                <div id="owner-only-fields">
+                  <div class="mb-3">
+                    <label for="id_business_name" class="form-label">Business name:</label>
+                    {{ form.business_name }}
+                  </div>
+                  <div class="mb-3">
+                    <label for="id_business_type" class="form-label">Business type:</label>
+                    {{ form.business_type }}
+                  </div>
+                  <div class="mb-3">
+                    <label for="id_address" class="form-label">Address:</label>
+                    {{ form.address }}
+                  </div>
+                  <div class="mb-3">
+                    <label for="id_phone_no" class="form-label">Phone no:</label>
+                    {{ form.phone_no }}
+                  </div>
+                </div>
+
+                <!-- Dropdown -->
+                <div id="staff-only-fields" style="display:none;">
+                  <div class="mb-3">{{ form.business_id.label_tag }} {{ form.business_id }}</div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                  <button type="button" class="btn btn-outline-secondary" data-previous
+                    aria-label="Go Back To Previous Step">Previous</button>
+                  <button type="submit" class="btn btn-success" aria-label="Submit Button">Submit</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  
+  <script>
+
+    const form = document.querySelector("[data-multi-step]");
+    const steps = [...form.querySelectorAll("[data-step]")];
+    let currentStep = steps.findIndex(step => step.classList.contains("active"));
+    if (currentStep < 0) currentStep = 0;
+    showStep();
+
+    // Handling Next and Previous Buttons
+    form.addEventListener("click", e => {
+      if (e.target.matches("[data-next]")) {
+        if (currentStep === 0) toggleRoleFields();
+        currentStep++;
+        showStep();
+      } else if (e.target.matches("[data-previous]")) {
+        currentStep--;
+        showStep();
+      }
+    });
+
+    // Function to display the selected step in the multi-step form
+    function showStep() {
+      steps.forEach((step, index) => {
+        step.classList.toggle("active", index === currentStep);
+        const indicator = document.getElementById(`step${index + 1}-indicator`);
+        if (indicator) indicator.classList.toggle("active", index === currentStep);
+      });
+    }
+
+    // Function to select fields based on the role selected
+    function toggleRoleFields() {
+      const role = document.getElementById("id_role")?.value;
+      document.getElementById("owner-only-fields").style.display = role === "owner" ? "block" : "none";
+      document.getElementById("staff-only-fields").style.display = (role === "staff" || role === "manager") ? "block" : "none";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      toggleRoleFields();
+      document.getElementById("id_role")?.addEventListener("change", toggleRoleFields);
+      
+      // Uses Select2 plugin to the dropdown the business ids. (Ack: ChatGPT used to understand and implement Select2)
+      $('#id_business_id').select2({ placeholder: "Select a business...", allowClear: true });
+    });
+    
+  </script>
+</body>
+
+</html>

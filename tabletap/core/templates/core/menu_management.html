@@ -1,0 +1,176 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}TableTap Menu Management{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .menu-item-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+  }
+
+  .menu-item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .menu-item-img {
+    height: 200px;
+    object-fit: cover;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+  }
+
+  .nav-tabs .nav-link {
+    font-weight: 500;
+  }
+
+  select.form-select.w-auto {
+    min-width: 200px;
+  }
+</style>
+{% endblock %}
+
+{% block page_heading %}Menu Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Menu Management</h1>
+  <div class="btn-toolbar gap-2">
+    {% if categories %}
+    <a href="{% url 'menu_item_add' %}?menu={{ selected_menu.id }}" class="btn btn-primary"><i
+        class="bi bi-plus-lg"></i> Add Menu Item</a>
+    {% else %}
+    <button class="btn btn-secondary" disabled><i class="bi bi-plus-lg"></i> Add Menu Item</button>
+    {% endif %}
+    <a href="{% url 'menu_category_add' %}?menu={{ selected_menu.id }}" class="btn btn-outline-primary"><i
+        class="bi bi-tags"></i> Add Category</a>
+  </div>
+</div>
+
+<!-- Menu Selevtor Section -->
+<div class="row align-items-center mb-4 g-2">
+  <div class="col-md-auto">
+    <form method="get" class="d-flex align-items-center gap-2">
+      <label class="form-label m-0 me-2" for="menuSelect">Select Menu:</label>
+      <select name="menu_id" id="menuSelect" class="form-select w-auto" onchange="this.form.submit()">
+        {% for menu in menus %}
+        <option value="{{ menu.id }}" {% if menu.id == selected_menu.id %}selected{% endif %}>
+          {{ menu.name }} {% if not menu.is_enabled %}(Disabled){% endif %}
+        </option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  <div class="col-md-auto">
+    <a href="{% url 'menu_add' %}" class="btn btn-outline-success w-100">+ New Menu</a>
+  </div>
+
+  {% if selected_menu %}
+  <div class="col-md-auto">
+    <form method="post" action="{% url 'menu_toggle' selected_menu.id %}">
+      {% csrf_token %}
+      <button type="submit"
+        class="btn {% if selected_menu.is_enabled %}btn-warning{% else %}btn-success{% endif %} w-100">
+        {% if selected_menu.is_enabled %}Disable{% else %}Enable{% endif %}
+      </button>
+    </form>
+  </div>
+
+  <div class="col-md-auto">
+    <a href="{% url 'menu_edit' selected_menu.id %}" class="btn btn-outline-secondary w-100">Edit Menu</a>
+  </div>
+
+  <div class="col-md-auto">
+    <form method="post" action="{% url 'menu_delete' selected_menu.id %}"
+      onsubmit="return confirm('Are you sure you want to delete this menu?')">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-danger w-100">Delete Menu</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Tabs Section -->
+<ul class="nav nav-tabs mb-4" id="menuTabs" role="tablist">
+  <li class="nav-item"><button class="nav-link active" id="menu-items-tab" data-bs-toggle="tab"
+      data-bs-target="#menu-items" type="button" role="tab">Menu Items</button></li>
+  <li class="nav-item"><button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories"
+      type="button" role="tab">Categories</button></li>
+</ul>
+
+<!-- Main Content -->
+<div class="tab-content" id="menuTabContent">
+  <div class="tab-pane fade show active" id="menu-items" role="tabpanel">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
+      {% for item in menu_items %}
+      <div class="col">
+        <div class="card menu-item-card h-100">
+          {% if item.image %}
+          <img src="{{ item.image.url }}" class="card-img-top menu-item-img" alt="{{ item.name }}">
+          {% endif %}
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <h5 class="card-title">{{ item.name }}</h5>
+              <span class="badge bg-primary">${{ item.price }}</span>
+            </div>
+            <p class="card-text text-muted small">{{ item.category.name }}</p>
+            <p class="card-text">{{ item.description }}</p>
+          </div>
+          <div class="card-footer bg-transparent border-top-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="{% url 'menu_item_edit' item.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+              <a href="{% url 'menu_item_delete' item.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+            </div>
+            <form method="post" action="{% url 'menu_item_toggle' item.id %}" class="mt-2">
+              {% csrf_token %}
+              <button type="submit"
+                class="btn btn-sm {% if item.is_available %}btn-warning{% else %}btn-success{% endif %} w-100">
+                {% if item.is_available %}Mark as Unavailable{% else %}Mark as Available{% endif %}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p>No menu items found.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="categories" role="tabpanel">
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Categories</h5>
+            <a class="btn btn-sm btn-primary" href="{% url 'menu_category_add' %}?menu={{ selected_menu.id }}">
+              <i class="bi bi-plus-lg"></i> Add Category
+            </a>
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              {% for category in categories %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ category.name }}
+                <div>
+                  <a href="{% url 'menu_category_edit' category.id %}"
+                    class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                  <a href="{% url 'menu_category_delete' category.id %}"
+                    class="btn btn-sm btn-outline-danger">Delete</a>
+                </div>
+              </li>
+              {% empty %}
+              <p>No categories found.</p>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
