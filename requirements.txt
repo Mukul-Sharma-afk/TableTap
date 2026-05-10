@@ -1,5 +1,4 @@
-django
-django-allauth[socialaccount] 
-gunicorn 
-whitenoise 
-requests 
+django-allauth[socialaccount]
+gunicorn
+whitenoise
+requests
